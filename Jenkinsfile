@@ -16,46 +16,40 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                bat """
+                docker build -t %IMAGE_NAME%:%IMAGE_TAG% .
                 """
             }
         }
 
-        stage('Run Tests (optional)') {
+        stage('Run Tests') {
             when {
                 expression { fileExists('tests') }
             }
             steps {
-                sh """
-                docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} pytest || echo "Tests failed or not configured"
+                bat """
+                docker run --rm %IMAGE_NAME%:%IMAGE_TAG% pytest || echo Tests Failed
                 """
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Container') {
             steps {
-                sh """
-                # Stop and remove existing container if running
-                docker stop ${CONTAINER_NAME} || true
-                docker rm ${CONTAINER_NAME} || true
-
-                # Run new container
-                docker run -d \
-                    --name ${CONTAINER_NAME} \
-                    -p 8000:8000 \
-                    ${IMAGE_NAME}:${IMAGE_TAG}
+                bat """
+                docker stop %CONTAINER_NAME% || echo Not Running
+                docker rm %CONTAINER_NAME% || echo No Container
+                docker run -d -p 8000:8000 --name %CONTAINER_NAME% %IMAGE_NAME%:%IMAGE_TAG%
                 """
             }
         }
     }
 
     post {
-        failure {
-            echo "Build or deployment failed. Check logs."
-        }
         success {
-            echo "Deployment successful. FastAPI app should be available on port 8000."
+            echo "🎉 Deployment successful → FastAPI running on port 8000!"
+        }
+        failure {
+            echo "❌ Build failed — Check Console Output"
         }
     }
 }
