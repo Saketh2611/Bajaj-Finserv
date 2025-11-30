@@ -1,66 +1,88 @@
+# 📄 Bill Extractor AI – FastAPI + OCR + Gemini
 
- 
-### Problem
-You will be given a set of bills (invoices) with multiple pages (training data); you need to design and
-develop data extraction/summarization models that will ‘extract the line item details from these bills
-and also provide ‘individual line item amount’, ‘Sub-total’ and ‘Final Total’ of the bill amounts
-extracted (sub-totals will be required only where they exist in the bill). ‘Final Total’
-will be sum (of all individual line items in the bills) without double-counting.
+Automated system to extract item-level bill details from PDF invoices, using OCR + Google Gemini AI, built with FastAPI, fully containerized using Docker, tested using pytest, and deployed on Render.
 
-Its important to ensure that, you don’t miss out on any line item entries and at the same time don’t
-double count any entries. The closer your ‘Total AI extracted amounts’ is equal to the ‘Actual Bill Total’
--the better your accuracy.
+## 🚀 Features
+Feature	Description
+🧾 PDF Upload	Accepts invoice PDFs via API
+🔍 OCR Processing	Uses Tesseract + pdf2image
+🤖 AI Parsing	Gemini LLM structures item data
+📦 JSON Response	Returns extracted name, qty, cost
+🧪 Pytest Integrated	CI-ready test suite
+🐳 Dockerized	Production-ready image
+🌍 Live Public Link	Deployable on Render / EC2 / Jenkins
+🔗 Live Demo
+Resource	URL
+Swagger UI	https://bajaj-finserv-t1ze.onrender.com/docs
 
-### Tools
-You are free to use tools and LLM you want to solve this problem.
+Base URL	https://bajaj-finserv-t1ze.onrender.com
+📁 Project Structure
+```
+📦 Bill-Extractor-AI
+├── main.py              # FastAPI entry point
+├── extractor.py         # OCR + Gemini processing logic
+├── requirements.txt
+├── Dockerfile
+├── tests/
+│   └── test_main.py     # pytest API test
+└── README.md
+```
 
-### Sample Dataset
-This has ~15 documents with different complexities and document_type for training
-https://hackrx.blob.core.windows.net/files/TRAINING_SAMPLES.zip?sv=2025-07-05&spr=https&st=2025-11-28T06%3A47%3A35Z&se=2025-11-29T06%3A47%3A35Z&sr=b&sp=r&sig=yB8R2zjoRL2%2FWRuv7E1lvmWSHAkm%2FoIGsepj2Io9pak%3D
+⚙ Installation & Setup (Local)
+```
+git clone https://github.com/Saketh2611/Bajaj-Finserv
+cd Bajaj-Finserv
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
 
-### Postman Collection
-You can import the following JSON directly to Postman for ease of understanding the request and response structure, your deployed endpoint should follow it exactly.
-https://hackrx.blob.core.windows.net/assets/datathon-IIT/HackRx%20Bill%20Extraction%20API.postman_collection.json?sv=2025-07-05&spr=https&st=2025-11-28T07%3A21%3A28Z&se=2026-11-29T07%3A21%3A00Z&sr=b&sp=r&sig=GTu74m7MsMT1fXcSZ8v92ijcymmu55sRklMfkTPuobc%3D
+Visit UI →
+http://localhost:8000/docs
 
-### Submission Format
-You need to deploy your solution in form of an API endpoint. The Signature of the API is as follows:
-Request to Student’s API
+🐳 Run With Docker
+```
+docker build -t bill-extractor-api .
+docker run -d -p 8000:8000 bill-extractor-api
+```
 
-POST /extract-bill-data
-Content-Type: application/json
-Request Body:
+🧪 Run Tests (pytest)
+pytest
+
+
+✔ Tests are already configured in CI
+✔ Validates FastAPI response & JSON output
+
+🧠 API Usage
+POST /extract
+curl -X POST "https://bajaj-finserv-t1ze.onrender.com/extract" \
+-F "file=@invoice.pdf"
+
+Response Example
+```
 {
-    "document": "https://hackrx.blob.core.windows.net/assets/datathon-IIT/sample_2.png?sv=2025-07-05&spr=https&a…
+  "store": "D-Mart",
+  "date": "2025-02-12",
+  "items": [
+    { "name": "Oil", "qty": 1, "price": 120 },
+    { "name": "Chips", "qty": 3, "price": 30 }
+  ],
+  "total": 210
 }
+```
 
-// This is a document url from where the file can be accessed and processed
+🏗 Deployment (Render)
+Build Command     →  ```pip install -r requirements.txt```
+Start Command     →  ```uvicorn main:app --host 0.0.0.0 --port 8000```
 
-Response from Student’s API
 
-    {
-    "is_success": "boolean", // If Status code 200 and following valid schema, then true
-    "token_usage": {
-        "total_tokens": "integer", // Cumulative Tokens from all LLM calls
-        "input_tokens": "integer", // Cumulative Tokens from all LLM calls
-        "output_tokens": "integer" // Cumulative Tokens from all LLM calls
-    },
-    "data": {
-        "pagewise_line_items": [
-        {
-            "page_no": "string",
-            "page_type": "Bill Detail | Final Bill | Pharmacy",
-            "bill_items": [
-            {
-                "item_name": "string", // Exactly as mentioned in the bill
-                "item_amount": "float", // Net Amount of the item post discounts as mentioned in the bill
-                "item_rate": "float", // Exactly as mentioned in the bill
-                "item_quantity": "float" // Exactly as mentioned in the bill
-            }
-            ]
-        }
-        ],
-        "total_item_count": "integer" // Count of items across all pages
-    }
-    }
-Evaluation Criteria
-The evaluation will be based on the accuracy of the line item data extraction and the bill totals extraction. You need to submit github repository link to the solution. You need to describe your submission in the README.md file.
+Upload repository → Deploy → Access public URL 🎉
+
+📌 Future Improvements
+Planned Feature	Benefit
+DB Storage	Save invoice history
+Multi-page support	Ideal for supermarket bills
+Fine-tuned invoice LLM	Higher accuracy
+Web dashboard UI	Visual analysis
+✨ Author
+
+Vaddiparthi Saketh — IIT Madras
