@@ -12,14 +12,20 @@ class BillItem(BaseModel):
     item_name: str
     item_amount: float
     item_rate: float
-    item_quantity: float = 1.0
+    item_quantity: float
+
+    class Config:
+        extra = "ignore"  # <== This fixes schema crash
+
 
 class PageData(BaseModel):
     page_no: str
     page_type: Literal["Bill Detail", "Final Bill", "Pharmacy"]
     bill_items: List[BillItem]
 
-
+    class Config:
+        extra = "ignore"  # <== extremely important
+        
 # ------------ Convert Image Path → base64 before sending ------------
 def encode_image(path):
     with open(path, "rb") as f:
