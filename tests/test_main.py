@@ -17,3 +17,4 @@ def test_extract_endpoint_exists():
 def test_invalid_input():
     response = client.post("/extract-bill-data", json={})
     assert response.status_code == 422
+#finaltest
