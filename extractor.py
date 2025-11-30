@@ -5,7 +5,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ---------------- Schema ----------------
 class BillItem(BaseModel):
@@ -25,7 +25,7 @@ class PageData(BaseModel):
 
     class Config:
         extra = "ignore"  # <== extremely important
-        
+
 # ------------ Convert Image Path → base64 before sending ------------
 def encode_image(path):
     with open(path, "rb") as f:
