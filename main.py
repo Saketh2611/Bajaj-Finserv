@@ -7,6 +7,10 @@ from extractor import analyze_page
 
 app = FastAPI()
 
+@app.get("/")
+def home():
+    return {"status": "FastAPI running successfully!", "message": "Webhook Ready 🚀"}
+
 class ExtractionRequest(BaseModel):
     document: str  # URL
 
