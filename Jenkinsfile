@@ -1,18 +1,20 @@
 pipeline {
+
     agent any
 
     environment {
-        IMAGE_NAME     = "bill-extractor-api"
-        IMAGE_TAG      = "latest"
-        CONTAINER_NAME = "bill-extractor"
+        IMAGE_NAME      = "bill-extractor-api"
+        IMAGE_TAG       = "latest"
+        CONTAINER_NAME  = "bill-extractor"
 
-        // 🔥 Load Gemini API Key from Jenkins Credentials
-        GEMINI_API_KEY = credentials('gemini_key')
+        // 🔥 Must create this in Jenkins:
+        // Manage Jenkins → Credentials → Add Secret Text → ID = gemini_key
+        GEMINI_API_KEY  = credentials('gemini_key')
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout From GitHub') {
             steps {
                 checkout scm
             }
@@ -26,18 +28,18 @@ pipeline {
             }
         }
 
-        // ❗ Tests skipped (pytest missing inside container)
-        stage('Run Tests (Skipped)') {
+        // 🔹 Skip test stage (you don’t need pytest in CI yet)
+        stage('Run Tests (Skipping)') {
             steps {
-                echo "Skipping pytest — not installed in Docker image (can enable later)"
+                echo "Skipping pytest — not installed in Docker container"
             }
         }
 
         stage('Deploy Container') {
             steps {
                 bat """
-                docker stop %CONTAINER_NAME% || echo Not Running
-                docker rm %CONTAINER_NAME% || echo No Existing Container
+                docker stop %CONTAINER_NAME% || echo No previous container
+                docker rm %CONTAINER_NAME%   || echo Nothing to remove
 
                 docker run -d -p 8000:8000 ^
                     -e GEMINI_API_KEY=%GEMINI_API_KEY% ^
@@ -49,7 +51,7 @@ pipeline {
 
     post {
         success {
-            echo "🚀 Build + Deployment Successful >> Open http://localhost:8000/docs"
+            echo "🚀 Deployment Successful >> Visit http://localhost:8000/docs"
         }
         failure {
             echo "❌ Build Failed — Check Console Output"
