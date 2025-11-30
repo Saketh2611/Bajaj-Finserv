@@ -7,8 +7,7 @@ pipeline {
         IMAGE_TAG       = "latest"
         CONTAINER_NAME  = "bill-extractor"
 
-        // 🔥 Must create this in Jenkins:
-        // Manage Jenkins → Credentials → Add Secret Text → ID = gemini_key
+        // Load Gemini API Key from Jenkins Credentials
         GEMINI_API_KEY  = credentials('gemini_key')
     }
 
@@ -28,10 +27,12 @@ pipeline {
             }
         }
 
-        // 🔹 Skip test stage (you don’t need pytest in CI yet)
-        stage('Run Tests (Skipping)') {
+        stage('Run Tests') {
+            when { expression { fileExists('tests') } }   // runs only if tests folder exists
             steps {
-                echo "Skipping pytest — not installed in Docker container"
+                bat """
+                docker run --rm %IMAGE_NAME%:%IMAGE_TAG% pytest
+                """
             }
         }
 
@@ -51,10 +52,10 @@ pipeline {
 
     post {
         success {
-            echo "🚀 Deployment Successful >> Visit http://localhost:8000/docs"
+            echo "🚀 Build + Test + Deployment Successful → http://localhost:8000/docs"
         }
         failure {
-            echo "❌ Build Failed — Check Console Output"
+            echo "❌ Pipeline Failed — Check Console Output"
         }
     }
 }
